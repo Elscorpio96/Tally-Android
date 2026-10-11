@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tally license generator (PRIVATE)</title>
+<style>
+  body{font-family:system-ui,sans-serif;background:#F4F3EE;color:#20241F;margin:0;padding:16px}
+  .wrap{max-width:640px;margin:0 auto}
+  h1{font-size:20px;margin:0 0 4px} p.sub{color:#6B6F63;font-size:13px;margin:0 0 16px}
+  .card{background:#fff;border:1px solid #E4E1D8;border-radius:12px;padding:16px;margin-bottom:14px}
+  label{display:block;font-size:12px;font-weight:600;color:#6B6F63;margin:10px 0 4px}
+  input,select,textarea{width:100%;box-sizing:border-box;border:1px solid #E4E1D8;border-radius:8px;padding:10px;font-size:15px;font-family:inherit}
+  textarea{font-family:ui-monospace,monospace;font-size:12px}
+  button{border:none;border-radius:8px;padding:11px 14px;font-weight:700;font-size:14px;cursor:pointer;background:#2F6B5E;color:#fff;margin-top:12px}
+  button.ghost{background:#EAE8E0;color:#20241F}
+  .ok{color:#2F6B5E}.warn{color:#C98A2E}.bad{color:#B44432}
+  #keystatus,#err{font-size:12px;margin-top:6px;font-weight:600}
+  table{width:100%;border-collapse:collapse;font-size:12px} td,th{border-bottom:1px solid #E4E1D8;padding:6px 4px;text-align:left}
+  td button{margin:0;padding:4px 8px;font-size:11px}
+  details summary{cursor:pointer;font-weight:700;font-size:14px}
+  code{word-break:break-all;font-size:12px}
+</style></head><body><div class="wrap">
+<h1>Tally license generator</h1>
+<p class="sub">Private tool, for the seller only. Never put this page or your private key in the app or share them.</p>
+
+<div class="card">
+  <label for="priv">Private key (saved in this browser only)</label>
+  <textarea id="priv" rows="3" placeholder="Paste your private key" autocomplete="off" spellcheck="false"></textarea>
+  <div id="keystatus"></div>
+</div>
+
+<div class="card">
+  <label for="dev">Customer's Device ID (from their activation screen)</label>
+  <input id="dev" placeholder="e.g. K7QM2-X9RTP" autocapitalize="characters" autocomplete="off">
+  <label for="cust">Licensed to (shown in the app, optional)</label>
+  <input id="cust" placeholder="e.g. Ade's Supermarket">
+  <label for="dur">License length</label>
+  <select id="dur"><option value="life">Lifetime</option><option value="30">30 days</option><option value="90">90 days</option><option value="180">6 months</option><option value="365">1 year</option><option value="custom">Custom days…</option></select>
+  <input id="days" type="number" min="1" placeholder="Number of days" style="display:none;margin-top:8px">
+  <button id="gen">Generate activation code</button>
+  <div id="err" class="bad"></div>
+  <label for="out">Activation code</label>
+  <textarea id="out" rows="5" readonly></textarea>
+  <button id="copy" class="ghost">Copy code</button>
+</div>
+
+<div class="card">
+  <details><summary>Keypair (set up once)</summary>
+    <p style="font-size:13px;color:#6B6F63">A keypair is already set up and built into your app. Only create a new one before your first release; then paste the public key into <code>src/license-config.js</code> and rebuild the app.</p>
+    <button id="newkey" class="ghost">Create new keypair</button>
+    <div id="newpubbox" style="display:none"><label>New PUBLIC key (goes in the app)</label><code id="newpub"></code></div>
+  </details>
+</div>
+
+<div class="card">
+  <strong style="font-size:14px">Codes issued from this browser</strong>
+  <table><thead><tr><th>Issued</th><th>Customer</th><th>Device</th><th>Expires</th><th></th></tr></thead><tbody id="hist"></tbody></table>
+  <button id="csv" class="ghost">Download list (.csv)</button>
+</div>
+</div>
+<script>/*BUNDLE*/</script></body></html>

@@ -1,0 +1,61 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+      KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+      KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - name: Install and bundle the web app
+        run: |
+          npm ci
+          npm run build:web
+          npx cap sync android
+
+      # Every run gets a higher versionCode, so phones always accept it as an update.
+      - name: Set version
+        run: echo "VERSION_CODE=$((100 + GITHUB_RUN_NUMBER))" >> "$GITHUB_ENV"
+
+      - name: Build signed release APK (when signing secrets are set)
+        if: ${{ env.KEYSTORE_BASE64 != '' }}
+        working-directory: android
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          export KEYSTORE_FILE="$RUNNER_TEMP/release.jks"
+          chmod +x gradlew
+          ./gradlew assembleRelease
+          cp app/build/outputs/apk/release/app-release.apk "$GITHUB_WORKSPACE/tally.apk"
+
+      - name: Build debug APK (fallback, NOT update-safe)
+        if: ${{ env.KEYSTORE_BASE64 == '' }}
+        working-directory: android
+        run: |
+          echo "::warning::No signing key set. This APK uses a random debug key, so it can NOT update an app installed from a different build. Add the KEYSTORE secrets (see README)."
+          chmod +x gradlew
+          ./gradlew assembleDebug
+          cp app/build/outputs/apk/debug/app-debug.apk "$GITHUB_WORKSPACE/tally.apk"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: tally-apk
+          path: tally.apk

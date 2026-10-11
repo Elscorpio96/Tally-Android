@@ -1,0 +1,9 @@
+{
+  "appId": "com.tally.shopledger",
+  "appName": "Tally",
+  "webDir": "www",
+  "backgroundColor": "#F4F3EE",
+  "android": {
+    "allowMixedContent": false
+  }
+}
