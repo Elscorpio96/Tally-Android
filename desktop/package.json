@@ -1,0 +1,64 @@
+{
+  "name": "ilelah-business-suite-desktop",
+  "productName": "Ilelah Business Suite",
+  "version": "1.17.0",
+  "description": "Ilelah Business Suite for Windows (offline Local mode with optional Cloud mode)",
+  "author": "Ilelah Technologies",
+  "main": "main.js",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis --x64"
+  },
+  "devDependencies": {
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "com.ilelah.businesssuite.desktop",
+    "productName": "Ilelah Business Suite",
+    "copyright": "Ilelah Technologies",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "package.json",
+      {
+        "from": "../www",
+        "to": "www"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "signAndEditExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Ilelah Business Suite",
+      "deleteAppDataOnUninstall": false,
+      "installerIcon": "build/icon.ico",
+      "uninstallerIcon": "build/icon.ico"
+    },
+    "artifactName": "Ilelah-Business-Suite-Setup-${version}.${ext}",
+    "extraResources": [
+      {
+        "from": "build/icon.ico",
+        "to": "icon.ico"
+      }
+    ]
+  }
+}

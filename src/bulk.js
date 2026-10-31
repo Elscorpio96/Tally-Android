@@ -147,11 +147,11 @@ export function buildPlan(rows, products, mode /* skip | update | addstock */) {
   return out;
 }
 
-export function applyPlan(products, plan, branchId, makeId) {
+export function applyPlan(products, plan, branchId, makeId, newProductId) {
   const updates = new Map(); const additions = [];
   for (const r of plan.rows) {
     if (r.action === "add") {
-      additions.push({ id: "p-" + makeId(), name: r.data.name, sku: r.data.sku, barcode: r.data.barcode || "", category: r.data.category || "", cost: r.data.cost, price: r.data.price, lowStock: r.data.lowStock, stock: { [branchId]: r.data.stock } });
+      additions.push({ id: newProductId ? newProductId() : "p-" + makeId(), name: r.data.name, sku: r.data.sku, barcode: r.data.barcode || "", category: r.data.category || "", cost: r.data.cost, price: r.data.price, lowStock: r.data.lowStock, stock: { [branchId]: r.data.stock } });
     } else if (r.action === "update" || r.action === "addstock") updates.set(r.existing.id, r);
   }
   const next = products.map((p) => {

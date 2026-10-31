@@ -1,4 +1,4 @@
-# Tally — Android app
+# Ilelah Business Suite (Android app)
 
 Your `tally-local.html` shop ledger, packaged as a native Android app (Capacitor).
 It works fully offline. All data is stored on the phone.
@@ -30,6 +30,50 @@ Needs Node 22+ and Android Studio (with JDK 21).
   (Save to Drive/Files, WhatsApp, email).
 - Fixed: on a brand new install the default `admin` / `admin123` login
   could be rejected until the app was restarted.
+
+## Bluetooth receipt printer (v1.3)
+
+Works with Bluetooth **thermal receipt printers** that speak ESC/POS over classic Bluetooth (the common small 58 mm
+and 80 mm kind, e.g. "MP-58", "PT-210", "MHT-P5801", Goojprt, Xprinter). Printers that are Bluetooth-LE-only are not supported.
+
+Setup (once per phone): switch the printer on, pair it in Android Bluetooth settings (PIN usually 0000 or 1234),
+then in the app go to **Settings > Receipt printer > Set up printer**, tap the printer, choose the paper width
+(58 mm = 32 characters, 80 mm = 48), press **Test print**, then **Save**. Android asks for "Nearby devices" permission: allow it.
+
+- **Print to printer** appears on every sale receipt and every credit payment receipt (the old "Print / PDF" button is still there).
+- **Print the receipt automatically after every sale** can be switched on in the same setup screen.
+- **Day close** has a Print button for the end-of-day summary.
+- The printer choice is stored on that phone only (it is not part of backups), so every phone sets up its own printer.
+- Receipts print in plain text: the naira sign prints as **N** and accented letters lose their accents,
+  because most cheap printers cannot print other characters. No logo, no paper cutter command, no cash-drawer pulse.
+- If printing fails: check the printer is on and close to the phone, that it is not connected to another phone, and try again.
+  The app reconnects for every print, so a printer that went to sleep wakes up.
+- On the Android side this uses `TallyBluetoothPlugin.java` (classic Bluetooth serial / SPP).
+
+## Everyday-use features (v1.2)
+
+- **Bottom tab bar (phones):** Home, Sell, Stock, Credit and **More** (Purchases, Expenses, Day close, Reports, Team, Settings).
+  Staff accounts see Home, Sell, Credit, Stock and Day close. The bar hides while the keyboard is open.
+  On wide screens the original top bar is used.
+- **Quick-sale tiles (Checkout):** one-tap tiles with price, stock left and a count badge for what is in the cart.
+  Owner pins items with the star in Inventory (or the checkbox in the product form); pinned items come first,
+  then the best sellers of the last 30 days. Sold-out items are greyed out. Checkout also shows **change to give back**.
+- **Debt reminders (Credit):** the green chat button beside each customer, or the buttons in their detail view, open WhatsApp
+  or SMS with a ready message (name, amount owed, shop name, and "was due on ..." when past the due date).
+  Numbers like 0803... are converted automatically to +234. You can add a missing phone number right there.
+  Sending the message needs WhatsApp/SMS on the phone; the app itself still works offline.
+- **Day close:** pick a date; see sales, gross and net profit, and the cash maths:
+  opening cash + cash sales + credit deposits + credit repayments - expenses = expected cash.
+  Enter the counted cash to see Over / Short / Balanced, add a note, save it, and **Share summary** (WhatsApp etc.).
+  Saved closes are included in backups.
+- **Reports:** Sales list, **Profit** (profit and loss with expenses by category and a daily table), **By product**,
+  **By cashier**, **By payment** (cash / credit; transfer and POS will appear here automatically when added).
+  **Export to Excel** gives one workbook (Summary, Sales, Items sold, By product, By cashier, By payment type, By day, Expenses)
+  for the chosen dates and branch.
+- **Below-cost warnings:** the product form shows margin or "you lose N on every unit"; Inventory tags BELOW COST items and
+  shows a banner with a "Show them" filter; Checkout flags such items and the loss; receiving a purchase warns when the new
+  cost is higher than the selling price; the import preview counts these rows.
+- On phones the scan box at Checkout is no longer focused automatically (it popped up the keyboard); tap the **Scan** button.
 
 ## Updating an app a client already has (IMPORTANT)
 
@@ -123,3 +167,6 @@ Notes:
 ## Editing the app
 
 The app code is `src/app.jsx`. After changing it run `npm run sync`, then rebuild.
+
+## v1.4: UI redesign
+Complete visual redesign with one design system: tokens in `src/theme.js`, global CSS and shared styles in `src/styles.js`, reusable components (Button, Field, Modal/bottom sheet, List/Row, Badge, Toggle, Segmented, Chips, EmptyState, Toast, Spinner) and the lucide icon set in `src/ui.jsx`. Inter is the only font. Phones get a top app bar plus bottom navigation, sheets slide up and the Android back button closes them; tablets and desktops get a top navigation and centred dialogs. No functionality or data format changed.

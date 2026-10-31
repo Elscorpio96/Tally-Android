@@ -1,0 +1,46 @@
+name: Build Windows installers
+
+# Produces two installers for Windows 10/11:
+#   Offline  - Local mode only (no cloud section)
+#   Online   - same app with the Cloud section switched on (needs the two secrets below)
+# Secrets (Settings -> Secrets and variables -> Actions): SUPABASE_URL and SUPABASE_ANON_KEY
+# Use ONLY the public anon key here, never the service-role key.
+on:
+  workflow_dispatch:
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Install desktop tools
+        working-directory: desktop
+        run: npm install --no-audit --no-fund
+
+      - name: Offline installer (Local mode only)
+        shell: bash
+        run: |
+          SUPABASE_URL= SUPABASE_ANON_KEY= npm run build:web
+          cd desktop
+          npx electron-builder --win nsis --x64 -c.artifactName='Ilelah-Business-Suite-Offline-Setup-${version}.${ext}'
+
+      - name: Online installer (Local + Cloud)
+        if: ${{ env.SUPABASE_URL != '' && env.SUPABASE_ANON_KEY != '' }}
+        shell: bash
+        run: |
+          npm run build:web
+          cd desktop
+          npx electron-builder --win nsis --x64 -c.artifactName='Ilelah-Business-Suite-Online-Setup-${version}.${ext}'
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installers
+          path: desktop/dist/*.exe
